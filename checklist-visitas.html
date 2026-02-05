@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checklist Executivo Claro - Visitas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #e60000 0%, #c00000 100%);
+            color: white;
+            padding: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .header-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .info-field {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .info-field label {
+            display: block;
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-field input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-box .label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-box .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #e60000;
+        }
+
+        .stat-box.conformes .value {
+            color: #28a745;
+        }
+
+        .stat-box.nao-conformes .value {
+            color: #dc3545;
+        }
+
+        .bloco {
+            margin-bottom: 25px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .bloco:hover {
+            border-color: #e60000;
+            box-shadow: 0 4px 12px rgba(230, 0, 0, 0.1);
+        }
+
+        .bloco-header {
+            background: #f8f9fa;
+            padding: 18px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .bloco-header:hover {
+            background: #e9ecef;
+        }
+
+        .bloco-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .bloco-number {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            background: #e60000;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 32px;
+            margin-right: 12px;
+            font-weight: bold;
+        }
+
+        .toggle-icon {
+            font-size: 20px;
+            color: #666;
+            transition: transform 0.3s ease;
+        }
+
+        .bloco.collapsed .toggle-icon {
+            transform: rotate(-90deg);
+        }
+
+        .bloco-content {
+            padding: 0;
+            max-height: 2000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .bloco.collapsed .bloco-content {
+            max-height: 0;
+        }
+
+        .checklist-item {
+            padding: 20px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s ease;
+        }
+
+        .checklist-item:last-child {
+            border-bottom: none;
+        }
+
+        .checklist-item:hover {
+            background: #f8f9fa;
+        }
+
+        .item-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .item-text {
+            flex: 1;
+            font-size: 15px;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .status-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .status-btn {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .status-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .status-btn.conforme {
+            border-color: #28a745;
+            background: #28a745;
+            color: white;
+        }
+
+        .status-btn.nao-conforme {
+            border-color: #dc3545;
+            background: #dc3545;
+            color: white;
+        }
+
+        .observacoes {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 60px;
+            font-family: inherit;
+        }
+
+        .observacoes:focus {
+            outline: none;
+            border-color: #e60000;
+            box-shadow: 0 0 0 3px rgba(230, 0, 0, 0.1);
+        }
+
+        .actions {
+            padding: 30px;
+            background: #f8f9fa;
+            border-top: 2px solid #e0e0e0;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #e60000;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #c00000;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(230, 0, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #333;
+            border: 2px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            border-color: #999;
+            background: #f8f9fa;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+            }
+            .actions {
+                display: none;
+            }
+        }
+
+        .subcategoria {
+            font-size: 13px;
+            color: #666;
+            font-style: italic;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Checklist Executivo Claro - Visitas</h1>
+            <div class="header-info">
+                <div class="info-field">
+                    <label>Data</label>
+                    <input type="date" id="data" value="">
+                </div>
+                <div class="info-field">
+                    <label>Executivo</label>
+                    <input type="text" id="executivo" placeholder="Nome do executivo">
+                </div>
+                <div class="info-field">
+                    <label>Parceiro</label>
+                    <input type="text" id="parceiro" placeholder="Nome do parceiro">
+                </div>
+                <div class="info-field">
+                    <label>Presentes</label>
+                    <input type="text" id="presentes" placeholder="Nomes dos presentes">
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="label">Total de Itens</div>
+                    <div class="value" id="stat-total">0</div>
+                </div>
+                <div class="stat-box conformes">
+                    <div class="label">Conformes</div>
+                    <div class="value" id="stat-conformes">0</div>
+                </div>
+                <div class="stat-box nao-conformes">
+                    <div class="label">Não Conformes</div>
+                    <div class="value" id="stat-nao-conformes">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">% Conformidade</div>
+                    <div class="value" id="stat-percentual">0%</div>
+                </div>
+            </div>
+
+            <div id="checklist-container"></div>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-secondary" onclick="limparChecklist()">🔄 Limpar Tudo</button>
+            <button class="btn btn-primary" onclick="salvarChecklist()">💾 Salvar Checklist</button>
+            <button class="btn btn-secondary" onclick="imprimirChecklist()">🖨️ Imprimir</button>
+        </div>
+    </div>
+
+    <script>
+        const checklistData = [
+            {
+                bloco: 1,
+                categoria: "Pré-Visita",
+                itens: [
+                    "Resultados Real x Planejado analisados",
+                    "Indicadores IN analisados (Vendas, Instalações, Churn)",
+                    "Indicadores críticos (FPD, Quebra, Desistência) avaliados",
+                    "Prévia e fechamento de comissionamento conferidos"
+                ]
+            },
+            {
+                bloco: 1,
+                categoria: "Visita",
+                itens: [
+                    "Pendências Bernhoeft mapeadas",
+                    "Indicador de Venda -> M-1",
+                    "Indicador de Instalalação/Quebra",
+                    "Alarmes de fraude/DDCOM verificados",
+                    "Quantidade de HC",
+                    "Compromisso BL"
+                ]
+            },
+            {
+                bloco: 2,
+                categoria: "Governança/Bernhoeft",
+                itens: [
+                    "Contratações 100% em regime CLT",
+                    "Vendedores cadastrados corretamente (SGT3)",
+                    "Estrutura física adequada (PA, headset, cadeira)"
+                ]
+            },
+            {
+                bloco: 2,
+                categoria: "Governança",
+                itens: [
+                    "2 IPs fixo cadastratos"
+                ]
+            },
+            {
+                bloco: 3,
+                categoria: "Qualidade da Venda",
+                itens: [
+                    "Evidência de venda realizada em até 48h",
+                    "Cliente titular verbalizou dados",
+                    "Ausência de terceiros na evidência",
+                    "Produtos e valores corretos na venda",
+                    "Audios aderente e com qualidade?",
+                    "Endereço validado corretamente",
+                    "Produto e valor confirmados com cliente"
+                ]
+            },
+            {
+                bloco: 4,
+                categoria: "FPD",
+                itens: [
+                    "FPD dentro do limite estabelecido",
+                    "Acompanhamento da 1ª e 2ª faturas",
+                    "Incentivo ao débito automático",
+                    "Incentivo a instalação do APP"
+                ]
+            },
+            {
+                bloco: 5,
+                categoria: "Quebra",
+                itens: [
+                    "Confirmações D-1 realizadas",
+                    "Confirmações D0 realizadas"
+                ]
+            },
+            {
+                bloco: 7,
+                categoria: "Fraude",
+                itens: [
+                    "Ausência de indícios de carrossel"
+                ]
+            },
+            {
+                bloco: 8,
+                categoria: "Monitoria",
+                itens: [
+                    "Monitorias DDCOM tratadas no prazo",
+                    "Monitorias não conformes tratadas",
+                    "Contestação aberta quando aplicável"
+                ]
+            },
+            {
+                bloco: 9,
+                categoria: "PME",
+                itens: [
+                    "Vendedor dedicado para PME",
+                    "Contratos PME apenas em CNPJ"
+                ]
+            },
+            {
+                bloco: 10,
+                categoria: "Encerramento",
+                itens: [
+                    "Alinhamentos registrados em ATA",
+                    "Próxima reunião agendada"
+                ]
+            }
+        ];
+
+        function renderChecklist() {
+            const container = document.getElementById('checklist-container');
+            container.innerHTML = '';
+
+            let blocoAtual = null;
+            let blocoElement = null;
+            let contentElement = null;
+
+            checklistData.forEach((grupo, grupoIndex) => {
+                if (blocoAtual !== grupo.bloco) {
+                    blocoAtual = grupo.bloco;
+                    blocoElement = document.createElement('div');
+                    blocoElement.className = 'bloco';
+                    blocoElement.innerHTML = `
+                        <div class="bloco-header" onclick="toggleBloco(this)">
+                            <div class="bloco-title">
+                                <span class="bloco-number">${grupo.bloco}</span>
+                                Bloco ${grupo.bloco}
+                            </div>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div class="bloco-content"></div>
+                    `;
+                    container.appendChild(blocoElement);
+                    contentElement = blocoElement.querySelector('.bloco-content');
+                }
+
+                grupo.itens.forEach((item, itemIndex) => {
+                    const itemId = `item-${grupoIndex}-${itemIndex}`;
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'checklist-item';
+                    itemElement.innerHTML = `
+                        <div class="item-header">
+                            <div class="item-text">
+                                <strong>${item}</strong>
+                                <div class="subcategoria">${grupo.categoria}</div>
+                            </div>
+                            <div class="status-buttons">
+                                <button class="status-btn" data-status="conforme" onclick="setStatus('${itemId}', 'conforme')">✓</button>
+                                <button class="status-btn" data-status="nao-conforme" onclick="setStatus('${itemId}', 'nao-conforme')">✗</button>
+                            </div>
+                        </div>
+                        <textarea class="observacoes" id="obs-${itemId}" placeholder="Observações / Ações..."></textarea>
+                    `;
+                    contentElement.appendChild(itemElement);
+                });
+            });
+
+            updateStats();
+            loadFromLocalStorage();
+        }
+
+        function toggleBloco(header) {
+            const bloco = header.parentElement;
+            bloco.classList.toggle('collapsed');
+        }
+
+        function setStatus(itemId, status) {
+            const item = document.querySelector(`#obs-${itemId}`).parentElement;
+            const buttons = item.querySelectorAll('.status-btn');
+            
+            buttons.forEach(btn => {
+                btn.classList.remove('conforme', 'nao-conforme');
+                if (btn.dataset.status === status) {
+                    if (btn.classList.contains(status)) {
+                        btn.classList.remove(status);
+                    } else {
+                        btn.classList.add(status);
+                    }
+                }
+            });
+
+            updateStats();
+            saveToLocalStorage();
+        }
+
+        function updateStats() {
+            const allButtons = document.querySelectorAll('.status-btn');
+            const totalItems = allButtons.length / 2;
+            let conformes = 0;
+            let naoConformes = 0;
+
+            allButtons.forEach(btn => {
+                if (btn.classList.contains('conforme')) conformes++;
+                if (btn.classList.contains('nao-conforme')) naoConformes++;
+            });
+
+            const avaliados = conformes + naoConformes;
+            const percentual = avaliados > 0 ? Math.round((conformes / avaliados) * 100) : 0;
+
+            document.getElementById('stat-total').textContent = totalItems;
+            document.getElementById('stat-conformes').textContent = conformes;
+            document.getElementById('stat-nao-conformes').textContent = naoConformes;
+            document.getElementById('stat-percentual').textContent = percentual + '%';
+        }
+
+        function saveToLocalStorage() {
+            const data = {
+                data: document.getElementById('data').value,
+                executivo: document.getElementById('executivo').value,
+                parceiro: document.getElementById('parceiro').value,
+                presentes: document.getElementById('presentes').value,
+                items: {}
+            };
+
+            document.querySelectorAll('.checklist-item').forEach((item, index) => {
+                const textarea = item.querySelector('textarea');
+                const buttons = item.querySelectorAll('.status-btn');
+                let status = '';
+                
+                buttons.forEach(btn => {
+                    if (btn.classList.contains('conforme')) status = 'conforme';
+                    if (btn.classList.contains('nao-conforme')) status = 'nao-conforme';
+                });
+
+                data.items[index] = {
+                    status: status,
+                    observacao: textarea.value
+                };
+            });
+
+            localStorage.setItem('checklistClaro', JSON.stringify(data));
+        }
+
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem('checklistClaro');
+            if (!saved) return;
+
+            const data = JSON.parse(saved);
+            
+            document.getElementById('data').value = data.data || '';
+            document.getElementById('executivo').value = data.executivo || '';
+            document.getElementById('parceiro').value = data.parceiro || '';
+            document.getElementById('presentes').value = data.presentes || '';
+
+            document.querySelectorAll('.checklist-item').forEach((item, index) => {
+                if (!data.items[index]) return;
+
+                const itemData = data.items[index];
+                const textarea = item.querySelector('textarea');
+                const buttons = item.querySelectorAll('.status-btn');
+
+                textarea.value = itemData.observacao || '';
+
+                buttons.forEach(btn => {
+                    if (btn.dataset.status === itemData.status) {
+                        btn.classList.add(itemData.status);
+                    }
+                });
+            });
+
+            updateStats();
+        }
+
+        function salvarChecklist() {
+            saveToLocalStorage();
+            alert('✅ Checklist salvo com sucesso!');
+        }
+
+        function limparChecklist() {
+            if (confirm('Tem certeza que deseja limpar todos os dados do checklist?')) {
+                localStorage.removeItem('checklistClaro');
+                document.querySelectorAll('input, textarea').forEach(el => el.value = '');
+                document.querySelectorAll('.status-btn').forEach(btn => {
+                    btn.classList.remove('conforme', 'nao-conforme');
+                });
+                updateStats();
+                alert('✅ Checklist limpo!');
+            }
+        }
+
+        function imprimirChecklist() {
+            window.print();
+        }
+
+        // Auto-save ao digitar
+        document.addEventListener('input', (e) => {
+            if (e.target.matches('input, textarea')) {
+                saveToLocalStorage();
+            }
+        });
+
+        // Definir data atual
+        document.getElementById('data').valueAsDate = new Date();
+
+        // Renderizar checklist
+        renderChecklist();
+    </script>
+</body>
+</html>
